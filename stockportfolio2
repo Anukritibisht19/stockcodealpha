@@ -1,0 +1,67 @@
+import requests
+
+API_KEY = 'XQY8AHLQ1XJ3YXIZ'
+
+def getstock_data(symbol):
+    url = f'https://www.alphavantage.co/query?function=GLOBAL_QUOTE&symbol={symbol}&apikey={API_KEY}'
+    response = requests.get(url)
+    data = response.json()
+    if 'Global Quote' in data:
+        return data['Global Quote']
+    else:
+        return None
+class Portfolio:
+    def __init__(self):
+        self.stocks = {}
+
+    def add_stockS(self, symbol, qty):
+        if symbol in self.stocks:
+            self.stocks[symbol] =self.stocks[symbol]+ qty
+        else:
+            self.stocks[symbol] = qty
+
+    def remove_stockS(self, symbol, qty):
+        if symbol in self.stocks:
+            self.stocks[symbol] =self.stocks[symbol]- qty
+            if self.stocks[symbol] <= 0:
+                del self.stocks[symbol]
+
+    def portfolio_value(self):
+        total_value = 0
+        for symbol, qty in self.stocks.items():
+            stock_data = getstock_data(symbol)
+            if stock_data:
+                price = float(stock_data['05. price'])
+                total_value = total_value + (price * qty)
+        return total_value
+
+def main():
+    portfolio = Portfolio()
+    
+    while True:
+        print("1. Add stock to your portfolio")
+        print("2. Remove stock from  your portfolio")
+        print("3. View your portfolio value")
+        print("4. Exit")
+
+        ch = input("Enter choice : ")
+
+        if ch == '1':
+            symbol = input("Enter the stock symbol: ")
+            qty = int(input("Enter the quantity you want to add: "))
+            portfolio.add_stockS(symbol, qty)
+        elif ch == '2':
+            symbol = input("Enter the stock symbol: ")
+            qty = int(input("Enter quantity you want to remove from your portfolio: "))
+            portfolio.remove_stockS(symbol, qty)
+        elif ch == '3':
+            value = portfolio.portfolio_value()
+            print(f"Portfolio value: ${value:.2f}")
+            
+        elif ch == '4':
+            break
+        else:
+            print("Invalid input  try again.")
+
+if __name__ == "__main__":
+    main()
